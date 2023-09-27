@@ -11,6 +11,7 @@ pub trait Component
 {
     fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool;
     fn render_app(&mut self, frame: &mut ratatui::Frame<CrosstermBackend<io::Stdout>>);
+    fn render_relative_app(&mut self, frame: &mut ratatui::Frame<CrosstermBackend<io::Stdout>>, rect: ratatui::layout::Rect);
 }
 
 
@@ -20,14 +21,15 @@ pub struct App
     comps: Vec<Box<dyn Component>>
 }
     
-
-
 impl App {
     pub fn new() -> Self
     {
         App {
             should_quit: false,
-            comps: vec![Box::new(my_paragraph::MyParagraph::new())] 
+            comps: vec![
+                Box::new(my_paragraph::MyParagraph::new()),
+                // Box::new(my_box::MyBox::new())
+            ]
         }
     }
 

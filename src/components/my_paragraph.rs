@@ -5,6 +5,8 @@ use std::process::Command;
 
 // my crates (for Component trait)
 use crate::my_app;
+use crate::my_app::Component;
+use crate::components::my_box;
 
 impl my_app::Component for MyParagraph {
     fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool
@@ -75,9 +77,7 @@ impl my_app::Component for MyParagraph {
             widgets::Paragraph::new(format!("counter is: {}", self.counter))
             .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[0]);
 
-        frame.render_widget(
-            widgets::Paragraph::new(format!("string is: {}", self.input))
-            .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[1]);
+        self.my_box_component.render_relative_app(frame, chunks[1]);
 
         let input = widgets::Paragraph::new(self.input.as_str())
             .style(match self.input_mode {
@@ -86,6 +86,9 @@ impl my_app::Component for MyParagraph {
             })
         .block(widgets::Block::default().borders(widgets::Borders::ALL).title("Input"));
         frame.render_widget(input, chunks[2]);
+        let mut x_pos: u16 = self.cursor_position.try_into().unwrap();
+        x_pos = x_pos + chunks[2].x;
+        frame.set_cursor(x_pos, chunks[2].y + 1);
 
         let output = Command::new("date-nlp").arg(&(self.input)).output().expect("failed to execute process");
         let date = String::from_utf8(output.stdout).unwrap();
@@ -93,12 +96,14 @@ impl my_app::Component for MyParagraph {
         frame.render_widget(
             widgets::Paragraph::new(format!("THE DATE: {}", date))
             .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[3]);
-        frame.set_cursor(self.cursor_position.try_into().unwrap(), 10);
+
+    }
+
+    fn render_relative_app(&mut self, frame: &mut ratatui::Frame<CrosstermBackend<io::Stdout>>, rect: ratatui::layout::Rect)
+    {
+
     }
 }
-
-
-
 
 enum InputMode 
 {
@@ -114,7 +119,8 @@ pub struct MyParagraph
     input: String,
     /// Position of cursor in the editor area.
     cursor_position: usize,
-    input_mode: InputMode
+    input_mode: InputMode,
+    my_box_component: Box<dyn Component>
 }
 
 impl MyParagraph
@@ -125,7 +131,8 @@ impl MyParagraph
             counter: 0,
             input: String::new(),
             input_mode: InputMode::Normal,
-            cursor_position: 0
+            cursor_position: 0,
+            my_box_component: Box::new(my_box::MyBox::new())
         }
     }
 
