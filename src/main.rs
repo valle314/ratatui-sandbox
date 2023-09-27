@@ -1,4 +1,5 @@
 // reference: https://ratatui.rs/concepts/application-patterns/component-architecture.html
+// https://github.com/a-kenji/tui-term
 
 use std::io;
 use ratatui::{
@@ -9,7 +10,6 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-
 
 pub mod my_app;
 

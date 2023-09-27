@@ -5,13 +5,10 @@ use ratatui::{
     widgets,
     Terminal
 };
-use crossterm::{
-    event,
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
-
+use crossterm::event;
 use std::process::Command;
+
+use ratatui_sandbox::event_tui;
 
 enum InputMode {
     Normal,
@@ -105,13 +102,24 @@ impl App {
 
     pub fn run(&mut self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> ()
     {
+
+        let events = event_tui::EventHandler::new(250);
+
         loop 
         {
             let _ = terminal.draw(|f| {
                 self.render_app(f);
             });
 
-            self.update();
+            // self.update();
+
+            match events.next() {
+                event_tui::Event::Tick => self.tick(),
+                event_tui::Event::Key(key_event) => self.handle_key_events(key_event),
+                event_tui::Event::Mouse(_) => {}
+                event_tui::Event::Resize(_, _) => {}
+            }
+
 
             if self.should_quit 
             {
@@ -119,6 +127,29 @@ impl App {
             }
         }
         return;
+    }
+
+    fn tick(&mut self)
+    {
+
+    }
+
+    fn handle_key_events(&mut self, key_event: event::KeyEvent)
+    {
+        match key_event.code
+        {
+            event::KeyCode::Char('q') => self.should_quit = true,
+            event::KeyCode::Char('c') => 
+            {
+                if key_event.modifiers == (event::KeyModifiers::CONTROL)
+                {
+                    self.should_quit = true
+                }
+            }
+            _ => ()
+        }
+
+        // println!("key: {:?}", key_event);
     }
 
     fn render_app(&mut self, frame: &mut ratatui::Frame<CrosstermBackend<io::Stdout>>) 
