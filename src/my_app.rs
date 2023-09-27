@@ -7,12 +7,18 @@ use crate::event_tui;
 use crate::components::my_paragraph;
 
 
+pub trait Renderable {
+    fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool;
+}
+
 
 pub struct App 
 {
     should_quit: bool,
-    component: my_paragraph::MyParagraph
+    component: my_paragraph::MyParagraph,
+    comps: Vec<Box<dyn Renderable>>
 }
+    
 
 
 impl App {
@@ -20,7 +26,8 @@ impl App {
     {
         App {
             should_quit: false,
-            component: my_paragraph::MyParagraph::new()
+            component: my_paragraph::MyParagraph::new(),
+            comps: vec![Box::new(my_paragraph::MyParagraph::new())] 
         }
     }
 
@@ -65,12 +72,16 @@ impl App {
         // and render things.. 
         // if one event is handled by one component then return false and then do not pass the
         // event to other components
+
+        for c in &mut self.comps
+        {
+            c.handle_key_event(key_event);
+        }
         self.component.handle_key_event(key_event);
 
         match key_event.code
         {
             event::KeyCode::Char('q') => self.should_quit = true,
-            event::KeyCode::Char('h') => my_paragraph::hi(),
             event::KeyCode::Char('c') => 
             {
                 if key_event.modifiers == (event::KeyModifiers::CONTROL)

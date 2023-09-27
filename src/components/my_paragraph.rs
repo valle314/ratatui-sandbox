@@ -3,10 +3,62 @@ use ratatui::{ backend::CrosstermBackend, prelude, widgets };
 use crossterm::event;
 use std::process::Command;
 
-pub fn hi()
-{
-    println!("hi");
+// my crates
+use crate::my_app;
+
+impl my_app::Renderable for MyParagraph {
+    fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool
+    {
+        match self.input_mode
+        {
+            InputMode::Normal => 
+            {
+                match key_event.code
+                {
+                    event::KeyCode::Char('j') => self.increase_counter(),
+                    event::KeyCode::Char('k') => self.decrease_counter(),
+                    event::KeyCode::Char('e') => self.input_mode = InputMode::Editing,
+                    _ => (),
+                }
+            }
+
+            InputMode::Editing => 
+            {
+                match key_event.code
+                {
+                    event::KeyCode::Enter => 
+                    {
+                        self.submit_message();
+                        self.input_mode = InputMode::Normal;
+                    }
+
+                    event::KeyCode::Char(to_insert) => 
+                    {
+                        self.enter_char(to_insert);
+                    }
+
+                    event::KeyCode::Backspace => 
+                    {
+                        self.delete_char();
+                    }
+
+                    event::KeyCode::Left => 
+                    {
+                        self.move_cursor_left();
+                    }
+
+                    event::KeyCode::Right => 
+                    {
+                        self.move_cursor_right();
+                    }
+                    _ => ()
+                }
+            }
+        }
+        return true;
+    }
 }
+
 
 enum InputMode 
 {
@@ -134,58 +186,58 @@ impl MyParagraph
         frame.set_cursor(self.cursor_position.try_into().unwrap(), 10);
     }
 
-    pub fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool
-    {
-        match self.input_mode
-        {
-            InputMode::Normal => 
-            {
-                match key_event.code
-                {
-                    event::KeyCode::Char('j') => self.increase_counter(),
-                    event::KeyCode::Char('k') => self.decrease_counter(),
-                    event::KeyCode::Char('e') => self.input_mode = InputMode::Editing,
-                    _ => (),
-                }
-            }
-
-            InputMode::Editing => 
-            {
-                match key_event.code
-                {
-                    event::KeyCode::Enter => 
-                    {
-                        self.submit_message();
-                        self.input_mode = InputMode::Normal;
-                    }
-
-                    event::KeyCode::Char(to_insert) => 
-                    {
-                        self.enter_char(to_insert);
-                    }
-
-                    event::KeyCode::Backspace => 
-                    {
-                        self.delete_char();
-                    }
-
-                    event::KeyCode::Left => 
-                    {
-                        self.move_cursor_left();
-                    }
-
-                    event::KeyCode::Right => 
-                    {
-                        self.move_cursor_right();
-                    }
-                    _ => ()
-                }
-            }
-        }
-
-
-        println!("hi");
-        return true;
-    }
+    // pub fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool
+    // {
+    //     match self.input_mode
+    //     {
+    //         InputMode::Normal => 
+    //         {
+    //             match key_event.code
+    //             {
+    //                 event::KeyCode::Char('j') => self.increase_counter(),
+    //                 event::KeyCode::Char('k') => self.decrease_counter(),
+    //                 event::KeyCode::Char('e') => self.input_mode = InputMode::Editing,
+    //                 _ => (),
+    //             }
+    //         }
+    //
+    //         InputMode::Editing => 
+    //         {
+    //             match key_event.code
+    //             {
+    //                 event::KeyCode::Enter => 
+    //                 {
+    //                     self.submit_message();
+    //                     self.input_mode = InputMode::Normal;
+    //                 }
+    //
+    //                 event::KeyCode::Char(to_insert) => 
+    //                 {
+    //                     self.enter_char(to_insert);
+    //                 }
+    //
+    //                 event::KeyCode::Backspace => 
+    //                 {
+    //                     self.delete_char();
+    //                 }
+    //
+    //                 event::KeyCode::Left => 
+    //                 {
+    //                     self.move_cursor_left();
+    //                 }
+    //
+    //                 event::KeyCode::Right => 
+    //                 {
+    //                     self.move_cursor_right();
+    //                 }
+    //                 _ => ()
+    //             }
+    //         }
+    //     }
+    //
+    //
+    //     println!("hi");
+    //     return true;
+    // }
 
 }
