@@ -8,9 +8,8 @@ use ratatui::{
 use crossterm::event;
 use std::process::Command;
 
-mod event_tui;
-mod components { pub mod my_paragraph; }
-use components::my_paragraph;
+use crate::event_tui;
+use crate::components::my_paragraph;
 
 enum InputMode {
     Normal,

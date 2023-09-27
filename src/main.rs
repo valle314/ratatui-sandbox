@@ -11,8 +11,8 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 
-pub mod my_app;
-
+// custom imports!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+use ratatui_sandbox::my_app;
 
 fn main() -> ()
 {
