@@ -8,7 +8,9 @@ use ratatui::{
 use crossterm::event;
 use std::process::Command;
 
-use ratatui_sandbox::event_tui;
+mod event_tui;
+mod components { pub mod my_paragraph; }
+use components::my_paragraph;
 
 enum InputMode {
     Normal,
@@ -139,6 +141,7 @@ impl App {
         match key_event.code
         {
             event::KeyCode::Char('q') => self.should_quit = true,
+            event::KeyCode::Char('h') => my_paragraph::hi(),
             event::KeyCode::Char('c') => 
             {
                 if key_event.modifiers == (event::KeyModifiers::CONTROL)

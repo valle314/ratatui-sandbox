@@ -13,6 +13,7 @@ use crossterm::{
 
 pub mod my_app;
 
+
 fn main() -> ()
 {
     let mut terminal = setup_terminal();
