@@ -3,10 +3,10 @@ use ratatui::{ backend::CrosstermBackend, prelude, widgets };
 use crossterm::event;
 use std::process::Command;
 
-// my crates
+// my crates (for Component trait)
 use crate::my_app;
 
-impl my_app::Renderable for MyParagraph {
+impl my_app::Component for MyParagraph {
     fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool
     {
         match self.input_mode
@@ -18,8 +18,9 @@ impl my_app::Renderable for MyParagraph {
                     event::KeyCode::Char('j') => self.increase_counter(),
                     event::KeyCode::Char('k') => self.decrease_counter(),
                     event::KeyCode::Char('e') => self.input_mode = InputMode::Editing,
-                    _ => (),
+                    _ => { return false; }
                 }
+                return true;
             }
 
             InputMode::Editing => 
@@ -51,13 +52,52 @@ impl my_app::Renderable for MyParagraph {
                     {
                         self.move_cursor_right();
                     }
-                    _ => ()
+                    _ => { return false; }
                 }
+                return true;
             }
         }
-        return true;
+    }
+
+    fn render_app(&mut self, frame: &mut ratatui::Frame<CrosstermBackend<io::Stdout>>) 
+    {
+        let chunks = prelude::Layout::default()
+            .direction(prelude::Direction::Horizontal)
+            .constraints(
+                [
+                prelude::Constraint::Percentage(10),
+                prelude::Constraint::Percentage(20),
+                prelude::Constraint::Percentage(30),
+                prelude::Constraint::Percentage(40),
+                ].as_ref())
+            .split(frame.size());
+        frame.render_widget(
+            widgets::Paragraph::new(format!("counter is: {}", self.counter))
+            .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[0]);
+
+        frame.render_widget(
+            widgets::Paragraph::new(format!("string is: {}", self.input))
+            .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[1]);
+
+        let input = widgets::Paragraph::new(self.input.as_str())
+            .style(match self.input_mode {
+                InputMode::Normal => prelude::Style::default(),
+                InputMode::Editing => prelude::Style::default().fg(prelude::Color::Yellow),
+            })
+        .block(widgets::Block::default().borders(widgets::Borders::ALL).title("Input"));
+        frame.render_widget(input, chunks[2]);
+
+        let output = Command::new("date-nlp").arg(&(self.input)).output().expect("failed to execute process");
+        let date = String::from_utf8(output.stdout).unwrap();
+
+        frame.render_widget(
+            widgets::Paragraph::new(format!("THE DATE: {}", date))
+            .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[3]);
+        frame.set_cursor(self.cursor_position.try_into().unwrap(), 10);
     }
 }
+
+
 
 
 enum InputMode 
@@ -148,96 +188,4 @@ impl MyParagraph
         self.input.clear();
         self.reset_cursor();
     }
-
-    pub fn render_app(&mut self, frame: &mut ratatui::Frame<CrosstermBackend<io::Stdout>>) 
-    {
-        let chunks = prelude::Layout::default()
-            .direction(prelude::Direction::Horizontal)
-            .constraints(
-                [
-                prelude::Constraint::Percentage(10),
-                prelude::Constraint::Percentage(20),
-                prelude::Constraint::Percentage(30),
-                prelude::Constraint::Percentage(40),
-                ].as_ref())
-            .split(frame.size());
-        frame.render_widget(
-            widgets::Paragraph::new(format!("counter is: {}", self.counter))
-            .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[0]);
-
-        frame.render_widget(
-            widgets::Paragraph::new(format!("string is: {}", self.input))
-            .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[1]);
-
-        let input = widgets::Paragraph::new(self.input.as_str())
-            .style(match self.input_mode {
-                InputMode::Normal => prelude::Style::default(),
-                InputMode::Editing => prelude::Style::default().fg(prelude::Color::Yellow),
-            })
-        .block(widgets::Block::default().borders(widgets::Borders::ALL).title("Input"));
-        frame.render_widget(input, chunks[2]);
-
-        let output = Command::new("date-nlp").arg(&(self.input)).output().expect("failed to execute process");
-        let date = String::from_utf8(output.stdout).unwrap();
-
-        frame.render_widget(
-            widgets::Paragraph::new(format!("THE DATE: {}", date))
-            .block(widgets::Block::default().borders(widgets::Borders::ALL).border_type(widgets::BorderType::Rounded)), chunks[3]);
-        frame.set_cursor(self.cursor_position.try_into().unwrap(), 10);
-    }
-
-    // pub fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool
-    // {
-    //     match self.input_mode
-    //     {
-    //         InputMode::Normal => 
-    //         {
-    //             match key_event.code
-    //             {
-    //                 event::KeyCode::Char('j') => self.increase_counter(),
-    //                 event::KeyCode::Char('k') => self.decrease_counter(),
-    //                 event::KeyCode::Char('e') => self.input_mode = InputMode::Editing,
-    //                 _ => (),
-    //             }
-    //         }
-    //
-    //         InputMode::Editing => 
-    //         {
-    //             match key_event.code
-    //             {
-    //                 event::KeyCode::Enter => 
-    //                 {
-    //                     self.submit_message();
-    //                     self.input_mode = InputMode::Normal;
-    //                 }
-    //
-    //                 event::KeyCode::Char(to_insert) => 
-    //                 {
-    //                     self.enter_char(to_insert);
-    //                 }
-    //
-    //                 event::KeyCode::Backspace => 
-    //                 {
-    //                     self.delete_char();
-    //                 }
-    //
-    //                 event::KeyCode::Left => 
-    //                 {
-    //                     self.move_cursor_left();
-    //                 }
-    //
-    //                 event::KeyCode::Right => 
-    //                 {
-    //                     self.move_cursor_right();
-    //                 }
-    //                 _ => ()
-    //             }
-    //         }
-    //     }
-    //
-    //
-    //     println!("hi");
-    //     return true;
-    // }
-
 }

@@ -7,16 +7,17 @@ use crate::event_tui;
 use crate::components::my_paragraph;
 
 
-pub trait Renderable {
+pub trait Component
+{
     fn handle_key_event(&mut self, key_event: event::KeyEvent) -> bool;
+    fn render_app(&mut self, frame: &mut ratatui::Frame<CrosstermBackend<io::Stdout>>);
 }
 
 
 pub struct App 
 {
     should_quit: bool,
-    component: my_paragraph::MyParagraph,
-    comps: Vec<Box<dyn Renderable>>
+    comps: Vec<Box<dyn Component>>
 }
     
 
@@ -26,7 +27,6 @@ impl App {
     {
         App {
             should_quit: false,
-            component: my_paragraph::MyParagraph::new(),
             comps: vec![Box::new(my_paragraph::MyParagraph::new())] 
         }
     }
@@ -40,10 +40,11 @@ impl App {
         loop 
         {
             let _ = terminal.draw(|f| {
-                self.component.render_app(f);
+                for c in &mut self.comps
+                {
+                    c.render_app(f);
+                }
             });
-
-            // self.update();
 
             match events.next() {
                 event_tui::Event::Tick => self.tick(),
@@ -68,28 +69,33 @@ impl App {
 
     fn handle_key_events(&mut self, key_event: event::KeyEvent)
     {
-        // TODO send keys to all components!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // and render things.. 
-        // if one event is handled by one component then return false and then do not pass the
-        // event to other components
-
+        let mut handled = false;
         for c in &mut self.comps
         {
-            c.handle_key_event(key_event);
-        }
-        self.component.handle_key_event(key_event);
-
-        match key_event.code
-        {
-            event::KeyCode::Char('q') => self.should_quit = true,
-            event::KeyCode::Char('c') => 
+            // TODO only handle key if focused!
+            if !handled
             {
-                if key_event.modifiers == (event::KeyModifiers::CONTROL)
-                {
-                    self.should_quit = true
-                }
+                handled = c.handle_key_event(key_event);
             }
-            _ => ()
+            else { break; }
         }
+
+        // these keybinds apply to the whole app
+        if !handled 
+        {
+            match key_event.code
+            {
+                event::KeyCode::Char('q') => self.should_quit = true,
+                event::KeyCode::Char('c') => 
+                {
+                    if key_event.modifiers == (event::KeyModifiers::CONTROL)
+                    {
+                        self.should_quit = true
+                    }
+                }
+                _ => ()
+            }
+        }
+
     }
 }
