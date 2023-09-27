@@ -1,33 +1,16 @@
-use std::{io, time::Duration};
-use ratatui::{
-    backend::CrosstermBackend,
-    prelude,
-    widgets,
-    Terminal
-};
+use std::io;
+use ratatui::{ backend::CrosstermBackend, Terminal };
 use crossterm::event;
-use std::process::Command;
 
+// my crates 
 use crate::event_tui;
 use crate::components::my_paragraph;
 
 
-// enum InputMode 
-// {
-//     Normal,
-//     Editing,
-// }
 
 pub struct App 
 {
-    // counter: i64,
     should_quit: bool,
-    // currently typed text
-    // input: String,
-    /// Position of cursor in the editor area.
-    // cursor_position: usize,
-    /// Current input mode
-    // input_mode: InputMode
     component: my_paragraph::MyParagraph
 }
 
@@ -38,10 +21,6 @@ impl App {
         App {
             should_quit: false,
             component: my_paragraph::MyParagraph::new()
-            // counter: 0,
-            // input: String::new(),
-            // input_mode: InputMode::Normal,
-            // cursor_position: 0,
         }
     }
 
@@ -101,64 +80,5 @@ impl App {
             }
             _ => ()
         }
-
-        // println!("key: {:?}", key_event);
-    }
-
-    fn update(&mut self) -> ()
-    {
-        // if event::poll(Duration::from_millis(250)).is_ok() {
-        //     if let event::Event::Key(key) = event::read().unwrap() 
-        //     {
-        //         match self.input_mode
-        //         {
-        //             InputMode::Normal => 
-        //             {
-        //                 match key.code
-        //                 {
-        //                     event::KeyCode::Char('j') => self.increase_counter(),
-        //                     event::KeyCode::Char('k') => self.decrease_counter(),
-        //                     event::KeyCode::Char('q') => self.should_quit = true,
-        //                     event::KeyCode::Char('e') => self.input_mode = InputMode::Editing,
-        //                     _ => (),
-        //                 }
-        //             }
-        //
-        //             InputMode::Editing => 
-        //             {
-        //                 match key.code
-        //                 {
-        //                     event::KeyCode::Enter => 
-        //                     {
-        //                         self.submit_message();
-        //                         self.input_mode = InputMode::Normal;
-        //                     }
-        //
-        //                     event::KeyCode::Char(to_insert) => 
-        //                     {
-        //                         self.enter_char(to_insert);
-        //                     }
-        //
-        //                     event::KeyCode::Backspace => 
-        //                     {
-        //                         self.delete_char();
-        //                     }
-        //
-        //                     event::KeyCode::Left => 
-        //                     {
-        //                         self.move_cursor_left();
-        //                     }
-        //
-        //                     event::KeyCode::Right => 
-        //                     {
-        //                         self.move_cursor_right();
-        //                     }
-        //                     _ => ()
-        //                 }
-        //             }
-        //         }
-        //
-        //     }
-        // }
     }
 }

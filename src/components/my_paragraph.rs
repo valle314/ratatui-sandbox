@@ -1,14 +1,7 @@
-use std::{io, time::Duration};
-use ratatui::{
-    backend::CrosstermBackend,
-    prelude,
-    widgets,
-    Terminal
-};
+use std::io;
+use ratatui::{ backend::CrosstermBackend, prelude, widgets };
 use crossterm::event;
 use std::process::Command;
-
-
 
 pub fn hi()
 {
@@ -29,7 +22,6 @@ pub struct MyParagraph
     input: String,
     /// Position of cursor in the editor area.
     cursor_position: usize,
-    /// Current input mode
     input_mode: InputMode
 }
 
