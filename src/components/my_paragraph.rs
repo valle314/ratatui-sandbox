@@ -87,7 +87,7 @@ impl my_app::Component for MyParagraph {
         .block(widgets::Block::default().borders(widgets::Borders::ALL).title("Input"));
         frame.render_widget(input, chunks[2]);
         let mut x_pos: u16 = self.cursor_position.try_into().unwrap();
-        x_pos = x_pos + chunks[2].x;
+        x_pos = x_pos + chunks[2].x + 1;
         frame.set_cursor(x_pos, chunks[2].y + 1);
 
         let output = Command::new("date-nlp").arg(&(self.input)).output().expect("failed to execute process");
